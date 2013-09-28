@@ -23,5 +23,12 @@
     "encode"
   ],
   "author": "Bryce B. Baril",
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/brycebaril/multibuffer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/brycebaril/multibuffer/issues"
+  }
 }
