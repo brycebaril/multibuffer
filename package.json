@@ -1,6 +1,6 @@
 {
   "name": "multibuffer",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Package Arrays of Buffers into a single buffer that they can be later unpacked from.",
   "main": "index.js",
   "directories": {
