@@ -1,0 +1,25 @@
+{
+  "name": "multibuffer",
+  "version": "0.0.0",
+  "description": "Package Arrays of Buffers into a single buffer that they can be later unpacked from.",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "tape": "~1.1.1"
+  },
+  "scripts": {
+    "test": "node test/"
+  },
+  "keywords": [
+    "Buffers",
+    "Concat",
+    "pack",
+    "unpack",
+    "encode"
+  ],
+  "author": "Bryce B. Baril",
+  "license": "MIT"
+}
