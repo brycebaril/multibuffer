@@ -1,9 +1,11 @@
 module.exports.pack = pack
 module.exports.unpack = unpack
 
+var bops = require("bops")
+
 function encode(buffer) {
-  var meta = new Buffer(4)
-  meta.writeUInt32BE(buffer.length, 0)
+  var meta = bops.create(4)
+  bops.writeUInt32BE(meta, buffer.length, 0)
   return Buffer.concat([meta, buffer])
 }
 
@@ -13,7 +15,7 @@ function encode(buffer) {
  * @return {Buffer}       A single buffer that is an encoded concatentation of buffs
  */
 function pack(buffs) {
-  return Buffer.concat(buffs.map(encode))
+  return bops.join(buffs.map(encode))
 }
 
 /**
@@ -25,9 +27,9 @@ function unpack(multibuffer) {
   var buffs = []
   var offset = 0
   while (offset < multibuffer.length) {
-    var length = multibuffer.readUInt32BE(offset)
+    var length = bops.readUInt32BE(multibuffer, offset)
     offset += 4
-    buffs.push(multibuffer.slice(offset, offset + length))
+    buffs.push(bops.subarray(multibuffer, offset, offset + length))
     offset += length
   }
   return buffs

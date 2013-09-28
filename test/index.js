@@ -1,6 +1,7 @@
 var test = require("tape").test
 
 var multibuffer = require("../")
+var bops = require("bops")
 
 test("init", function (t) {
   t.ok(multibuffer.pack, "has pack()")
@@ -19,15 +20,19 @@ function bufEquals(b1, b2) {
 
 test("simple", function (t) {
 
-  var b1 = new Buffer("Hi there")
-  var b2 = new Buffer("BYE NOW!!!!!!!!!")
+  var b1 = bops.from("Hi there")
+  var b1l = bops.create(4)
+  bops.writeUInt32BE(b1l, 8, 0)
+  var b2 = bops.from("BYE NOW!!!!!!!!!")
+  var b2l = bops.create(4)
+  bops.writeUInt32BE(b2l, 16, 0)
 
   var input = [b1, b2]
 
-  var expected = Buffer.concat([
-    new Buffer([0, 0, 0, 8]),
+  var expected = bops.join([
+    b1l,
     b1,
-    new Buffer([0, 0, 0, 16]),
+    b2l,
     b2
   ])
 
@@ -45,23 +50,37 @@ test("simple", function (t) {
 test("five", function (t) {
 
   var input = [
-    new Buffer("one"),
-    new Buffer("two"),
-    new Buffer("three"),
-    new Buffer("four"),
-    new Buffer("five"),
+    bops.from("one"),
+    bops.from("two"),
+    bops.from("three"),
+    bops.from("four"),
+    bops.from("five"),
   ]
 
+  var lengths = [
+    bops.create(4),
+    bops.create(4),
+    bops.create(4),
+    bops.create(4),
+    bops.create(4)
+  ]
+  bops.writeUInt32BE(lengths[0], 3, 0)
+  bops.writeUInt32BE(lengths[1], 3, 0)
+  bops.writeUInt32BE(lengths[2], 5, 0)
+  bops.writeUInt32BE(lengths[3], 4, 0)
+  bops.writeUInt32BE(lengths[4], 4, 0)
+
+
   var expected = Buffer.concat([
-    new Buffer([0, 0, 0, 3]),
+    lengths[0],
     input[0],
-    new Buffer([0, 0, 0, 3]),
+    lengths[1],
     input[1],
-    new Buffer([0, 0, 0, 5]),
+    lengths[2],
     input[2],
-    new Buffer([0, 0, 0, 4]),
+    lengths[3],
     input[3],
-    new Buffer([0, 0, 0, 4]),
+    lengths[4],
     input[4],
   ])
 
@@ -82,23 +101,37 @@ test("five", function (t) {
 test("empty buffer", function (t) {
 
   var input = [
-    new Buffer("one"),
-    new Buffer("two"),
-    new Buffer(0),
-    new Buffer("four"),
-    new Buffer("five"),
+    bops.from("one"),
+    bops.from("two"),
+    bops.create(0),
+    bops.from("four"),
+    bops.from("five"),
   ]
 
+  var lengths = [
+    bops.create(4),
+    bops.create(4),
+    bops.create(4),
+    bops.create(4),
+    bops.create(4)
+  ]
+  bops.writeUInt32BE(lengths[0], 3, 0)
+  bops.writeUInt32BE(lengths[1], 3, 0)
+  bops.writeUInt32BE(lengths[2], 0, 0)
+  bops.writeUInt32BE(lengths[3], 4, 0)
+  bops.writeUInt32BE(lengths[4], 4, 0)
+
+
   var expected = Buffer.concat([
-    new Buffer([0, 0, 0, 3]),
+    lengths[0],
     input[0],
-    new Buffer([0, 0, 0, 3]),
+    lengths[1],
     input[1],
-    new Buffer([0, 0, 0, 0]),
+    lengths[2],
     input[2],
-    new Buffer([0, 0, 0, 4]),
+    lengths[3],
     input[3],
-    new Buffer([0, 0, 0, 4]),
+    lengths[4],
     input[4],
   ])
 
