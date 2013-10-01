@@ -58,6 +58,19 @@ test("simple", function (t) {
   t.end()
 })
 
+test("nested multibuffer", function (t) {
+  var input = bops.from("Nested")
+
+  var layerOne = multibuffer.encode(input)
+  var layerTwo = multibuffer.encode(layerOne)
+
+  t.equals(layerOne.length, 10)
+  t.equals(layerTwo.length, 14)
+  t.ok(bufEquals(multibuffer.unpack(multibuffer.unpack(layerTwo)[0])[0], input), "Got nested buffer out")
+
+  t.end()
+})
+
 test("five", function (t) {
 
   var input = [

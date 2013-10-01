@@ -12,6 +12,8 @@ One place this library can be useful is if you want to stream tuples of Buffer d
 
 The encoding it uses is very simple, it prepends each input Buffer with 4 bytes storing the length of the buffer, then concatenates all those together. The resulting buffer is thus the same length as all your buffers concatenated, plus 4 bytes per input buffer.
 
+Because the encoding is a fixed-width prefix, this encoding is safe to nest upon itself.
+
 ```javascript
 var multibuffer = require("multibuffer")
 
