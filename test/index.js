@@ -6,6 +6,7 @@ var bops = require("bops")
 test("init", function (t) {
   t.ok(multibuffer.pack, "has pack()")
   t.ok(multibuffer.unpack, "has unpack()")
+  t.ok(multibuffer.encode, "has encode()")
   t.end()
 })
 
@@ -17,6 +18,16 @@ function bufEquals(b1, b2) {
   }
   return true
 }
+
+test("encode", function (t) {
+  var input = bops.from("Hi there")
+  var inputMeta = bops.create(4)
+  bops.writeUInt32BE(inputMeta, 8, 0)
+  var expected = bops.join([inputMeta, input])
+
+  t.ok(bufEquals(multibuffer.encode(input), expected))
+  t.end()
+})
 
 test("simple", function (t) {
 

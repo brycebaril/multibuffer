@@ -1,3 +1,4 @@
+module.exports.encode = encode
 module.exports.pack = pack
 module.exports.unpack = unpack
 
@@ -6,7 +7,7 @@ var bops = require("bops")
 function encode(buffer) {
   var meta = bops.create(4)
   bops.writeUInt32BE(meta, buffer.length, 0)
-  return Buffer.concat([meta, buffer])
+  return bops.join([meta, buffer], 4 + buffer.length)
 }
 
 /**

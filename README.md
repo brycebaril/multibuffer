@@ -51,6 +51,11 @@ Pack the `Array[Buffer] buffers` into a single encoded Buffer.
 
 Unpack the `Array[Buffer] buffers` that were encoded into the multibuffer.
 
+`.encode(buffer)`
+---
+
+Encode a single buffer.
+
 NOTES
 ===
 
