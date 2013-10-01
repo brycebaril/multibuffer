@@ -172,3 +172,41 @@ test("empty buffer", function (t) {
   t.ok(bufEquals(unpacked[4], input[4]), "unpacked correctly")
   t.end()
 })
+
+test("readPartial", function (t) {
+  var input = [
+    bops.from("one"),
+    bops.from("two"),
+    bops.create(0),
+    bops.from("four"),
+    bops.from("five"),
+  ]
+
+  var mb = multibuffer.pack(input)
+
+  var partial = multibuffer.readPartial(mb)
+  t.ok(bufEquals(partial[0], input[0]))
+  partial = multibuffer.readPartial(partial[1])
+
+  t.ok(bufEquals(partial[0], input[1]))
+  partial = multibuffer.readPartial(partial[1])
+
+  t.ok(bufEquals(partial[0], input[2]))
+  partial = multibuffer.readPartial(partial[1])
+
+  t.ok(bufEquals(partial[0], input[3]))
+  partial = multibuffer.readPartial(partial[1])
+
+  t.ok(bufEquals(partial[0], input[4]))
+
+  t.end()
+})
+
+test("readPartial incomplete", function (t) {
+  var fakeMultibuffer = bops.create(6)
+  bops.writeUInt32BE(fakeMultibuffer, 10, 0)
+  var partial = multibuffer.readPartial(fakeMultibuffer)
+  t.notOk(partial[0])
+  t.equals(fakeMultibuffer, partial[1])
+  t.end()
+})

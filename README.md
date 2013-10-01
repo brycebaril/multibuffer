@@ -58,6 +58,11 @@ Unpack the `Array[Buffer] buffers` that were encoded into the multibuffer.
 
 Encode a single buffer.
 
+`.readPartial(multibuffer)`
+---
+
+Attempt to read the first encoded buffer from a multibuffer. Will return a two-element array of `[Buffer, Buffer]` which is `[firstBuffer, rest]`. If the multibuffer is incomplete, it will return `[null, multibuffer]` where the second element is the passed incomplete multibuffer.
+
 NOTES
 ===
 
