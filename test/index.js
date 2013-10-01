@@ -210,3 +210,11 @@ test("readPartial incomplete", function (t) {
   t.equals(fakeMultibuffer, partial[1])
   t.end()
 })
+
+test("readPartial tiny", function (t) {
+  var fakeMultibuffer = bops.create(2)
+  var partial = multibuffer.readPartial(fakeMultibuffer)
+  t.notOk(partial[0])
+  t.equals(fakeMultibuffer, partial[1])
+  t.end()
+})
