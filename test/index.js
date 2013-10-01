@@ -198,7 +198,7 @@ test("readPartial", function (t) {
   partial = multibuffer.readPartial(partial[1])
 
   t.ok(bufEquals(partial[0], input[4]))
-
+  t.equals(partial[1], null)
   t.end()
 })
 

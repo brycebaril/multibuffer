@@ -50,10 +50,13 @@ function unpack(multibuffer) {
 function readPartial(multibuffer) {
   var length = multibuffer.length
   var encodedLength = bops.readUInt32BE(multibuffer, 0)
-  if (length < 4 + encodedLength) {
+  if (length < 4 + encodedLength)
     return [null, multibuffer]
-  }
+
   var encoded = bops.subarray(multibuffer, 4, 4 + encodedLength)
+  if (length == 4 + encodedLength)
+    return [encoded, null]
+
   var rest = bops.subarray(multibuffer, 4 + encodedLength)
   return [encoded, rest]
 }
