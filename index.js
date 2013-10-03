@@ -11,9 +11,14 @@ var bops = require("bops")
  * @return {Buffer}        An encoded buffer exactly 4 bytes longer than before.
  */
 function encode(buffer) {
+  var meta = _meta(buffer)
+  return bops.join([meta, buffer], 4 + buffer.length)
+}
+
+function _meta(buffer) {
   var meta = bops.create(4)
   bops.writeUInt32BE(meta, buffer.length, 0)
-  return bops.join([meta, buffer], 4 + buffer.length)
+  return meta
 }
 
 /**
@@ -22,7 +27,13 @@ function encode(buffer) {
  * @return {Buffer}       A single buffer that is an encoded concatentation of buffs
  */
 function pack(buffs) {
-  return bops.join(buffs.map(encode))
+  var parts = []
+  var len = buffs.length
+  for (var i = 0; i < len; i++) {
+    parts.push(_meta(buffs[i]))
+    parts.push(buffs[i])
+  }
+  return bops.join(parts)
 }
 
 /**
