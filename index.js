@@ -12,14 +12,10 @@ var bops = require("bops")
  */
 function encode(buffer) {
   var blen = buffer.length
-  var meta = _meta(blen)
-  return bops.join([meta, buffer], 4 + blen)
-}
-
-function _meta(blen) {
-  var meta = bops.create(4)
-  bops.writeUInt32BE(meta, blen, 0)
-  return meta
+  var mb = bops.create(blen + 4)
+  bops.writeUInt32BE(mb, blen, 0)
+  bops.copy(buffer, mb, 4, 0, blen)
+  return mb
 }
 
 /**
