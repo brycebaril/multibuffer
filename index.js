@@ -29,25 +29,23 @@ function _meta(blen) {
  */
 function pack(buffs) {
   var lengths = [],
-      blen,
       len = buffs.length,
       sum = 0,
       offset = 0,
-      mb
+      mb,
+      i
 
-  for (var i = 0; i < len; i++) {
-    blen = buffs[i].length
-    sum += blen + 4
-    lengths.push(blen)
+  for (i = 0; i < len; i++) {
+    lengths.push(buffs[i].length)
+    sum += lengths[i] + 4
   }
 
   mb = bops.create(sum)
-  for (var i = 0; i < len; i++) {
-    blen = lengths[i]
-    bops.writeUInt32BE(mb, blen, offset)
+  for (i = 0; i < len; i++) {
+    bops.writeUInt32BE(mb, lengths[i], offset)
     offset += 4
-    bops.copy(buffs[i], mb, offset, 0, blen)
-    offset += blen
+    bops.copy(buffs[i], mb, offset, 0, lengths[i])
+    offset += lengths[i]
   }
   return mb
 }
