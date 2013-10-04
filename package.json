@@ -10,7 +10,11 @@
     "bops": "0.1.0"
   },
   "devDependencies": {
-    "tape": "~1.1.1"
+    "tape": "~1.1.1",
+    "terminus": "~1.0.2",
+    "through2": "~0.2.3",
+    "binary-csv": "0.0.4",
+    "stream-splice": "~1.0.6"
   },
   "scripts": {
     "test": "node test/"
