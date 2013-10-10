@@ -4,8 +4,9 @@ module.exports.unpack = unpack
 module.exports.readPartial = readPartial
 
 var bops = require("bops")
-var encode = require('varint/encode')
-var Decoder = require('varint/decode')
+var varint = require("varint")
+var encode = varint.encode
+var decode = varint.decode
 
 /**
  * Encode a buffer witha 4-byte prefix containing the buffer's length.
@@ -61,24 +62,13 @@ function pack(buffs) {
 function unpack(multibuffer) {
   var buffs = []
   var offset = 0
-  var vi = new Decoder()
-  var inLength = true
   var length
-  vi.ondata = function(num) {
-    length = num
-    inLength = false
-  }
-
+  
   while (offset < multibuffer.length) {
-    if (inLength) {
-      var bit = bops.readUInt8(multibuffer, offset)
-      vi.write(bit)
-      offset++
-    } else {
-      buffs.push(bops.subarray(multibuffer, offset, offset + length))
-      offset += length
-      inLength = true
-    }
+    length = decode(bops.subarray(multibuffer, offset))
+    offset += decode.bytesRead
+    buffs.push(bops.subarray(multibuffer, offset, offset + length))
+    offset += length
   }
   
   return buffs
@@ -90,17 +80,11 @@ function unpack(multibuffer) {
  * @return {Array}            [Buffer, Buffer] where the first buffer is the first encoded buffer, and the second is the rest of the multibuffer.
  */
 function readPartial(multibuffer) {
-  var length = multibuffer.length
-  if (length < 4)
-    return [null, multibuffer]
-  var encodedLength = bops.readUInt32BE(multibuffer, 0)
-  if (length < 4 + encodedLength)
-    return [null, multibuffer]
-
-  var encoded = bops.subarray(multibuffer, 4, 4 + encodedLength)
-  if (length == 4 + encodedLength)
-    return [encoded, null]
-
-  var rest = bops.subarray(multibuffer, 4 + encodedLength)
-  return [encoded, rest]
+  var dataLength = decode(multibuffer)
+  var read = decode.bytesRead
+  if (multibuffer.length < read + dataLength) return [null, multibuffer]
+  var first = bops.subarray(multibuffer, read, read + dataLength)
+  var rest = bops.subarray(multibuffer, read + dataLength)
+  if (rest.length === 0) rest = null
+  return [first, rest]
 }

@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "bops": "0.1.0",
-    "varint": "0.0.3"
+    "varint": "git://github.com/maxogden/varint.git#buffer-read"
   },
   "devDependencies": {
     "tape": "~1.1.1",
