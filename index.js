@@ -4,6 +4,9 @@ module.exports.unpack = unpack
 module.exports.readPartial = readPartial
 
 var bops = require("bops")
+var varint = require("varint")
+var encode = varint.encode
+var decode = varint.decode
 
 /**
  * Encode a buffer witha 4-byte prefix containing the buffer's length.
@@ -12,9 +15,10 @@ var bops = require("bops")
  */
 function encode(buffer) {
   var blen = buffer.length
-  var mb = bops.create(blen + 4)
-  bops.writeUInt32BE(mb, blen, 0)
-  bops.copy(buffer, mb, 4, 0, blen)
+  var lenbytes = encode(blen)
+  var mb = bops.create(blen + lenbytes.length)
+  for (var i = 0; i < lenbytes.length; i++) bops.writeUInt8(mb, lenbytes[i], i)
+  bops.copy(buffer, mb, lenbytes.length, 0, blen)
   return mb
 }
 
@@ -25,6 +29,7 @@ function encode(buffer) {
  */
 function pack(buffs) {
   var lengths = [],
+      lenbytes = [],
       len = buffs.length,
       sum = 0,
       offset = 0,
@@ -33,13 +38,16 @@ function pack(buffs) {
 
   for (i = 0; i < len; i++) {
     lengths.push(buffs[i].length)
-    sum += lengths[i] + 4
+    lenbytes.push(encode(lengths[i]))
+    sum += lengths[i] + lenbytes[i].length
   }
 
   mb = bops.create(sum)
   for (i = 0; i < len; i++) {
-    bops.writeUInt32BE(mb, lengths[i], offset)
-    offset += 4
+    for (var j = 0; j < lenbytes[i].length; j++) {
+      bops.writeUInt8(mb, lenbytes[i][j], offset)
+      offset++
+    }
     bops.copy(buffs[i], mb, offset, 0, lengths[i])
     offset += lengths[i]
   }
@@ -54,12 +62,15 @@ function pack(buffs) {
 function unpack(multibuffer) {
   var buffs = []
   var offset = 0
+  var length
+  
   while (offset < multibuffer.length) {
-    var length = bops.readUInt32BE(multibuffer, offset)
-    offset += 4
+    length = decode(bops.subarray(multibuffer, offset))
+    offset += decode.bytesRead
     buffs.push(bops.subarray(multibuffer, offset, offset + length))
     offset += length
   }
+  
   return buffs
 }
 
@@ -69,17 +80,11 @@ function unpack(multibuffer) {
  * @return {Array}            [Buffer, Buffer] where the first buffer is the first encoded buffer, and the second is the rest of the multibuffer.
  */
 function readPartial(multibuffer) {
-  var length = multibuffer.length
-  if (length < 4)
-    return [null, multibuffer]
-  var encodedLength = bops.readUInt32BE(multibuffer, 0)
-  if (length < 4 + encodedLength)
-    return [null, multibuffer]
-
-  var encoded = bops.subarray(multibuffer, 4, 4 + encodedLength)
-  if (length == 4 + encodedLength)
-    return [encoded, null]
-
-  var rest = bops.subarray(multibuffer, 4 + encodedLength)
-  return [encoded, rest]
+  var dataLength = decode(multibuffer)
+  var read = decode.bytesRead
+  if (multibuffer.length < read + dataLength) return [null, multibuffer]
+  var first = bops.subarray(multibuffer, read, read + dataLength)
+  var rest = bops.subarray(multibuffer, read + dataLength)
+  if (rest.length === 0) rest = null
+  return [first, rest]
 }
