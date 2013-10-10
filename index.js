@@ -4,7 +4,8 @@ module.exports.unpack = unpack
 module.exports.readPartial = readPartial
 
 var bops = require("bops")
-var varint = require('varint')
+var encode = require('varint/encode')
+var Decoder = require('varint/decode')
 
 /**
  * Encode a buffer witha 4-byte prefix containing the buffer's length.
@@ -13,7 +14,7 @@ var varint = require('varint')
  */
 function encode(buffer) {
   var blen = buffer.length
-  var lenbytes = varint.encode(blen)
+  var lenbytes = encode(blen)
   var mb = bops.create(blen + lenbytes.length)
   for (var i = 0; i < lenbytes.length; i++) bops.writeUInt8(mb, lenbytes[i], i)
   bops.copy(buffer, mb, lenbytes.length, 0, blen)
@@ -36,7 +37,7 @@ function pack(buffs) {
 
   for (i = 0; i < len; i++) {
     lengths.push(buffs[i].length)
-    lenbytes.push(varint.encode(lengths[i]))
+    lenbytes.push(encode(lengths[i]))
     sum += lengths[i] + lenbytes[i].length
   }
 
@@ -60,13 +61,13 @@ function pack(buffs) {
 function unpack(multibuffer) {
   var buffs = []
   var offset = 0
-  var vi = varint()
+  var vi = new Decoder()
   var inLength = true
   var length
-  vi.on('data', function(num) {
+  vi.ondata = function(num) {
     length = num
     inLength = false
-  })
+  }
 
   while (offset < multibuffer.length) {
     if (inLength) {
