@@ -63,14 +63,14 @@ function unpack(multibuffer) {
   var buffs = []
   var offset = 0
   var length
-  
+
   while (offset < multibuffer.length) {
     length = decode(bops.subarray(multibuffer, offset))
     offset += decode.bytesRead
     buffs.push(bops.subarray(multibuffer, offset, offset + length))
     offset += length
   }
-  
+
   return buffs
 }
 

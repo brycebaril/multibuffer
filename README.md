@@ -10,9 +10,9 @@ Package Arrays of Buffers into a single buffer that they can be later unpacked f
 
 One place this library can be useful is if you want to stream tuples of Buffer data without entering an objectMode stream.
 
-The encoding it uses is very simple, it prepends each input Buffer with 4 bytes storing the length of the buffer, then concatenates all those together. The resulting buffer is thus the same length as all your buffers concatenated, plus 4 bytes per input buffer.
+Each input buffer is prefixed with a [varint](https://npmjs.org/package/varint) prefix encoding how long the buffer is. The resulting buffer is the same length as all the concatenated buffers, plus a few bytes per buffer for the encodings.
 
-Because the encoding is a fixed-width prefix, this encoding is safe to nest upon itself.
+Because encoding is at the beginning and varints can be consumed without back-tracking, this encoding is safe to nest upon itself.
 
 ```javascript
 var multibuffer = require("multibuffer")
@@ -30,7 +30,7 @@ var input = [
 var packed = multibuffer.pack(input)
 
 /*
-<Buffer 00 00 00 08 48 69 20 74 68 65 72 65 00 00 00 10 42 59 45 20 4e 4f 57 21 21 21 21 21 21 21 21 21>
+<Buffer 08 48 69 20 74 68 65 72 65 10 42 59 45 20 4e 4f 57 21 21 21 21 21 21 21 21 21>
  */
 
 var unpacked = multibuffer.unpack(packed)
