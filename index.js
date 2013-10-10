@@ -4,6 +4,7 @@ module.exports.unpack = unpack
 module.exports.readPartial = readPartial
 
 var bops = require("bops")
+var varint = require('varint')
 
 /**
  * Encode a buffer witha 4-byte prefix containing the buffer's length.
@@ -12,9 +13,10 @@ var bops = require("bops")
  */
 function encode(buffer) {
   var blen = buffer.length
-  var mb = bops.create(blen + 4)
-  bops.writeUInt32BE(mb, blen, 0)
-  bops.copy(buffer, mb, 4, 0, blen)
+  var lenbytes = varint.encode(blen)
+  var mb = bops.create(blen + lenbytes.length)
+  for (var i = 0; i < lenbytes.length; i++) bops.writeUInt8(mb, lenbytes[i], i)
+  bops.copy(buffer, mb, lenbytes.length, 0, blen)
   return mb
 }
 
@@ -25,6 +27,7 @@ function encode(buffer) {
  */
 function pack(buffs) {
   var lengths = [],
+      lenbytes = [],
       len = buffs.length,
       sum = 0,
       offset = 0,
@@ -33,13 +36,16 @@ function pack(buffs) {
 
   for (i = 0; i < len; i++) {
     lengths.push(buffs[i].length)
-    sum += lengths[i] + 4
+    lenbytes.push(varint.encode(lengths[i]))
+    sum += lengths[i] + lenbytes[i].length
   }
 
   mb = bops.create(sum)
   for (i = 0; i < len; i++) {
-    bops.writeUInt32BE(mb, lengths[i], offset)
-    offset += 4
+    for (var j = 0; j < lenbytes[i].length; j++) {
+      bops.writeUInt8(mb, lenbytes[i][j], offset)
+      offset++
+    }
     bops.copy(buffs[i], mb, offset, 0, lengths[i])
     offset += lengths[i]
   }
@@ -54,12 +60,26 @@ function pack(buffs) {
 function unpack(multibuffer) {
   var buffs = []
   var offset = 0
+  var vi = varint()
+  var inLength = true
+  var length
+  vi.on('data', function(num) {
+    length = num
+    inLength = false
+  })
+
   while (offset < multibuffer.length) {
-    var length = bops.readUInt32BE(multibuffer, offset)
-    offset += 4
-    buffs.push(bops.subarray(multibuffer, offset, offset + length))
-    offset += length
+    if (inLength) {
+      var bit = bops.readUInt8(multibuffer, offset)
+      vi.write(bit)
+      offset++
+    } else {
+      buffs.push(bops.subarray(multibuffer, offset, offset + length))
+      offset += length
+      inLength = true
+    }
   }
+  
   return buffs
 }
 
