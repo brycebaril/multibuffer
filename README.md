@@ -43,20 +43,20 @@ var unpacked = multibuffer.unpack(packed)
 API
 ===
 
-`.pack(buffers)`
+`.pack(buffers, extra)`
 ---
 
-Pack the `Array[Buffer] buffers` into a single encoded Buffer.
+Pack the `Array[Buffer] buffers` into a single encoded Buffer. `extra` is an optional integer specifying how many leading empty bytes to leave in the returned Buffer.
 
 `.unpack(multibuffer)`
 ---
 
 Unpack the `Array[Buffer] buffers` that were encoded into the multibuffer.
 
-`.encode(buffer)`
+`.encode(buffer, extra)`
 ---
 
-Encode a single buffer.
+Encode a single buffer. `extra` is an optional integer specifying how many leading empty bytes to leave in the returned Buffer.
 
 `.readPartial(multibuffer)`
 ---

@@ -210,3 +210,23 @@ test("readPartial incomplete", function (t) {
   t.equals(fakeMultibuffer, partial[1])
   t.end()
 })
+
+test('encode w/ 10 extra leading bytes', function(t) {
+  var input = bops.from("hello")
+  var extra = 10
+  var encoded = multibuffer.encode(input, extra)
+  t.equals(encoded.length, 6 + extra, 'length is +' + extra)
+  console.log(encoded, encoded.length, encoded.toString())
+  t.equals(encoded[extra + 1], 104, 'h exists in correct place')
+  t.end()
+})
+
+test('pack w/ 10 extra leading bytes', function(t) {
+  var buffs = [new Buffer('hello'), new Buffer('world')]
+  var extra = 10
+  var encoded = multibuffer.pack(buffs, extra)
+  t.equals(encoded.length, (6 + extra) * 2, 'length is correct')
+  t.equals(encoded[extra + 1], 104, 'h exists in correct place')
+  t.equals(encoded[extra + 1 + 5 + extra + 1], 119, 'w exists in correct place')
+  t.end()
+})
