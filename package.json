@@ -7,15 +7,15 @@
     "test": "test"
   },
   "dependencies": {
-    "bops": "~0.1.0",
+    "bops": "~0.1.1",
     "varint": "~1.0.0"
   },
   "devDependencies": {
-    "tape": "~1.1.1",
-    "terminus": "~1.0.2",
+    "tape": "~2.3.0",
+    "terminus": "~1.0.4",
     "through2": "~0.2.3",
-    "binary-csv": "0.0.5",
-    "stream-splice": "~1.0.6"
+    "binary-csv": "0.1.6",
+    "stream-splice": "~1.0.7"
   },
   "scripts": {
     "test": "node test/"

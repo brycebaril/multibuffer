@@ -216,7 +216,6 @@ test('encode w/ 10 extra leading bytes', function(t) {
   var extra = 10
   var encoded = multibuffer.encode(input, extra)
   t.equals(encoded.length, 6 + extra, 'length is +' + extra)
-  console.log(encoded, encoded.length, encoded.toString())
   t.equals(encoded[extra + 1], 104, 'h exists in correct place')
   t.end()
 })
