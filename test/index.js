@@ -1,7 +1,6 @@
 var test = require("tape").test
 
 var multibuffer = require("../")
-var bops = require("bops")
 
 test("init", function (t) {
   t.ok(multibuffer.pack, "has pack()")
@@ -20,10 +19,10 @@ function bufEquals(b1, b2) {
 }
 
 test("encode", function (t) {
-  var input = bops.from("Hi there")
-  var inputMeta = bops.create(1)
+  var input = new Buffer("Hi there")
+  var inputMeta = new Buffer(1)
   inputMeta[0] = 8
-  var expected = bops.join([inputMeta, input])
+  var expected = Buffer.concat([inputMeta, input])
 
   t.ok(bufEquals(multibuffer.encode(input), expected))
   t.end()
@@ -31,19 +30,19 @@ test("encode", function (t) {
 
 test("simple", function (t) {
 
-  var b1 = bops.from("Hi there")
+  var b1 = new Buffer("Hi there")
 
-  var b1l = bops.create(1)
+  var b1l = new Buffer(1)
   b1l[0] = 8
 
-  var b2 = bops.from("BYE NOW!!!!!!!!!")
+  var b2 = new Buffer("BYE NOW!!!!!!!!!")
 
-  var b2l = bops.create(1)
+  var b2l = new Buffer(1)
   b2l[0] = 16
 
   var input = [b1, b2]
 
-  var expected = bops.join([
+  var expected = Buffer.concat([
     b1l,
     b1,
     b2l,
@@ -61,7 +60,7 @@ test("simple", function (t) {
 })
 
 test("nested multibuffer", function (t) {
-  var input = bops.from("Nested")
+  var input = new Buffer("Nested")
 
   var layerOne = multibuffer.encode(input)
   var layerTwo = multibuffer.encode(layerOne)
@@ -76,19 +75,19 @@ test("nested multibuffer", function (t) {
 test("five", function (t) {
 
   var input = [
-    bops.from("one"),
-    bops.from("two"),
-    bops.from("three"),
-    bops.from("four"),
-    bops.from("five"),
+    new Buffer("one"),
+    new Buffer("two"),
+    new Buffer("three"),
+    new Buffer("four"),
+    new Buffer("five"),
   ]
 
   var lengths = [
-    bops.create(1),
-    bops.create(1),
-    bops.create(1),
-    bops.create(1),
-    bops.create(1)
+    new Buffer(1),
+    new Buffer(1),
+    new Buffer(1),
+    new Buffer(1),
+    new Buffer(1)
   ]
   lengths[0][0] = 3
   lengths[1][0] = 3
@@ -96,7 +95,7 @@ test("five", function (t) {
   lengths[3][0] = 4
   lengths[4][0] = 4
 
-  var expected = bops.join([
+  var expected = Buffer.concat([
     lengths[0],
     input[0],
     lengths[1],
@@ -126,19 +125,19 @@ test("five", function (t) {
 test("empty buffer", function (t) {
 
   var input = [
-    bops.from("one"),
-    bops.from("two"),
-    bops.create(0),
-    bops.from("four"),
-    bops.from("five"),
+    new Buffer("one"),
+    new Buffer("two"),
+    new Buffer(0),
+    new Buffer("four"),
+    new Buffer("five"),
   ]
 
   var lengths = [
-    bops.create(1),
-    bops.create(1),
-    bops.create(1),
-    bops.create(1),
-    bops.create(1)
+    new Buffer(1),
+    new Buffer(1),
+    new Buffer(1),
+    new Buffer(1),
+    new Buffer(1)
   ]
   lengths[0][0] = 3
   lengths[1][0] = 3
@@ -146,7 +145,7 @@ test("empty buffer", function (t) {
   lengths[3][0] = 4
   lengths[4][0] = 4
 
-  var expected = bops.join([
+  var expected = Buffer.concat([
     lengths[0],
     input[0],
     lengths[1],
@@ -175,11 +174,11 @@ test("empty buffer", function (t) {
 
 test("readPartial", function (t) {
   var input = [
-    bops.from("one"),
-    bops.from("two"),
-    bops.create(0),
-    bops.from("four"),
-    bops.from("five"),
+    new Buffer("one"),
+    new Buffer("two"),
+    new Buffer(0),
+    new Buffer("four"),
+    new Buffer("five"),
   ]
 
   var mb = multibuffer.pack(input)
@@ -203,7 +202,7 @@ test("readPartial", function (t) {
 })
 
 test("readPartial incomplete", function (t) {
-  var fakeMultibuffer = bops.create(3)
+  var fakeMultibuffer = new Buffer(3)
   fakeMultibuffer[0] = 10
   var partial = multibuffer.readPartial(fakeMultibuffer)
   t.notOk(partial[0])
@@ -212,7 +211,7 @@ test("readPartial incomplete", function (t) {
 })
 
 test('encode w/ 10 extra leading bytes', function(t) {
-  var input = bops.from("hello")
+  var input = new Buffer("hello")
   var extra = 10
   var encoded = multibuffer.encode(input, extra)
   t.equals(encoded.length, 6 + extra, 'length is +' + extra)

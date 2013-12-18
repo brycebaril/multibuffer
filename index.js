@@ -3,7 +3,6 @@ module.exports.pack = pack
 module.exports.unpack = unpack
 module.exports.readPartial = readPartial
 
-var bops = require("bops")
 var varint = require("varint")
 var vencode = varint.encode
 var vdecode = varint.decode
@@ -18,11 +17,11 @@ function encode(buffer, extra) {
   if (!extra) extra = 0
   var blen = buffer.length
   var lenbytes = vencode(blen)
-  var mb = bops.create(extra + blen + lenbytes.length)
+  var mb = new Buffer(extra + blen + lenbytes.length)
   for (var i = 0; i < lenbytes.length; i++) {
-    bops.writeUInt8(mb, lenbytes[i], extra + i)
+    mb.writeUInt8(lenbytes[i], extra + i)
   }
-  bops.copy(buffer, mb, lenbytes.length + extra, 0, blen)
+  buffer.copy(mb, lenbytes.length + extra, 0, blen)
   return mb
 }
 
@@ -48,13 +47,13 @@ function pack(buffs, extra) {
     sum += lengths[i] + lenbytes[i].length + extra
   }
 
-  mb = bops.create(sum)
+  mb = new Buffer(sum)
   for (i = 0; i < len; i++) {
     for (var j = 0; j < lenbytes[i].length; j++) {
-      bops.writeUInt8(mb, lenbytes[i][j], offset + extra)
+      mb.writeUInt8(lenbytes[i][j], offset + extra)
       offset = offset + 1 + extra
     }
-    bops.copy(buffs[i], mb, offset, 0, lengths[i])
+    buffs[i].copy(mb, offset, 0, lengths[i])
     offset += lengths[i]
   }
   return mb
@@ -71,9 +70,9 @@ function unpack(multibuffer) {
   var length
 
   while (offset < multibuffer.length) {
-    length = vdecode(bops.subarray(multibuffer, offset))
+    length = vdecode(multibuffer.slice(offset))
     offset += vdecode.bytesRead
-    buffs.push(bops.subarray(multibuffer, offset, offset + length))
+    buffs.push(multibuffer.slice(offset, offset + length))
     offset += length
   }
 
@@ -89,8 +88,8 @@ function readPartial(multibuffer) {
   var dataLength = vdecode(multibuffer)
   var read = vdecode.bytesRead
   if (multibuffer.length < read + dataLength) return [null, multibuffer]
-  var first = bops.subarray(multibuffer, read, read + dataLength)
-  var rest = bops.subarray(multibuffer, read + dataLength)
+  var first = multibuffer.slice(read, read + dataLength)
+  var rest = multibuffer.slice(read + dataLength)
   if (rest.length === 0) rest = null
   return [first, rest]
 }
