@@ -3,9 +3,6 @@ multibuffer
 
 [![NPM](https://nodei.co/npm/multibuffer.png)](https://nodei.co/npm/multibuffer/)
 
-[![david-dm](https://david-dm.org/brycebaril/multibuffer.png)](https://david-dm.org/brycebaril/multibuffer/)
-[![david-dm](https://david-dm.org/brycebaril/multibuffer/dev-status.png)](https://david-dm.org/brycebaril/multibuffer#info=devDependencies/)
-
 Package Arrays of Buffers into a single buffer that they can be later unpacked from.
 
 One place this library can be useful is if you want to stream tuples of Buffer data without entering an objectMode stream.
