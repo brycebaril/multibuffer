@@ -71,7 +71,7 @@ function unpack(multibuffer) {
 
   while (offset < multibuffer.length) {
     length = vdecode(multibuffer.slice(offset))
-    offset += vdecode.bytesRead
+    offset += vdecode.bytes
     buffs.push(multibuffer.slice(offset, offset + length))
     offset += length
   }
@@ -86,7 +86,7 @@ function unpack(multibuffer) {
  */
 function readPartial(multibuffer) {
   var dataLength = vdecode(multibuffer)
-  var read = vdecode.bytesRead
+  var read = vdecode.bytes
   if (multibuffer.length < read + dataLength) return [null, multibuffer]
   var first = multibuffer.slice(read, read + dataLength)
   var rest = multibuffer.slice(read + dataLength)
